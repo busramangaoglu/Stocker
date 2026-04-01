@@ -25,6 +25,8 @@ const publicRoot = path.join(__dirname, '..', 'public');
 const productImagesDir = path.join(publicRoot, 'product-images');
 app.use('/product-images', express.static(productImagesDir));
 
+app.get('/', (_req, res) => res.json({ status: 'ok', message: 'Stocker API çalışıyor' }));
+
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { explorer: true }));
 app.get('/api/docs.json', (req, res) => {
   res.json(openApiSpec);
