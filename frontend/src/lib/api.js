@@ -1,6 +1,32 @@
 import { getApiBase } from './apiBase.js';
+import { coercePlainString } from './coerceString.js';
 
 const API_BASE_URL = getApiBase();
+
+function messageFromErrorPayload(payload, status) {
+  const raw = payload?.message ?? payload?.error;
+  if (typeof raw === 'string' && raw.trim()) return raw;
+  if (Array.isArray(raw)) {
+    const parts = raw.map((x) => coercePlainString(x) || (typeof x === 'object' ? JSON.stringify(x) : String(x))).filter(Boolean);
+    if (parts.length) return parts.join('; ');
+  }
+  if (raw && typeof raw === 'object') {
+    if (typeof raw.message === 'string') return raw.message;
+    const details = payload?.details;
+    if (Array.isArray(details)) {
+      const msgs = details
+        .map((d) => coercePlainString(d?.message) || (typeof d === 'string' ? d : ''))
+        .filter(Boolean);
+      if (msgs.length) return msgs.join('; ');
+    }
+    try {
+      return JSON.stringify(raw);
+    } catch {
+      /* ignore */
+    }
+  }
+  return `Request failed (${status})`;
+}
 
 async function apiFetch(path, { method = 'GET', body } = {}) {
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
@@ -23,7 +49,7 @@ async function apiFetch(path, { method = 'GET', body } = {}) {
   }
 
   if (!res.ok) {
-    const msg = payload?.message || payload?.error || `Request failed (${res.status})`;
+    const msg = messageFromErrorPayload(payload, res.status);
     const err = new Error(msg);
     err.status = res.status;
     err.details = payload?.details;

@@ -8,6 +8,11 @@ import {
   isBelowGlobalCritical,
 } from '../lib/globalCriticalThreshold.js';
 import { productImageFallbackUrl, resolveProductImageUrl } from '../lib/imageUrl.js';
+import {
+  coercePlainString,
+  normalizeCatalogItem,
+  normalizeProductRow,
+} from '../lib/coerceString.js';
 
 function Avatar({ name, critical }) {
   const letters = (name || '')
@@ -174,7 +179,8 @@ export default function ProductsPage() {
     setErr('');
     try {
       const list = await api.getProducts();
-      setProducts(list || []);
+      const arr = Array.isArray(list) ? list : [];
+      setProducts(arr.map(normalizeProductRow));
     } catch (e) {
       setErr(e.message || 'Hata');
     } finally {
@@ -193,7 +199,12 @@ export default function ProductsPage() {
       try {
         setCatalogErr('');
         const list = await api.getProductCatalog();
-        if (!cancelled) setCatalog(Array.isArray(list) ? list : []);
+        let raw = Array.isArray(list) ? list : [];
+        if (!raw.length && list && typeof list === 'object' && Array.isArray(list.items)) {
+          raw = list.items;
+        }
+        const normalized = raw.map(normalizeCatalogItem).filter(Boolean);
+        if (!cancelled) setCatalog(normalized);
       } catch (e) {
         if (!cancelled) setCatalogErr(e.message || 'Katalog yüklenemedi');
       } finally {
@@ -206,11 +217,12 @@ export default function ProductsPage() {
   }, []);
 
   function selectCatalogItem(item) {
+    const entry = normalizeCatalogItem(item) || item;
     setProductForm((s) => ({
       ...s,
-      name: item.name,
-      category: item.category,
-      description: item.description || '',
+      name: coercePlainString(entry.name).trim(),
+      category: coercePlainString(entry.category).trim(),
+      description: typeof entry.description === 'string' ? entry.description : coercePlainString(entry.description),
     }));
   }
 
@@ -289,10 +301,10 @@ export default function ProductsPage() {
   function openEdit(p) {
     setProductMode('edit');
     setProductForm({
-      name: p.name || '',
-      description: p.description || '',
+      name: coercePlainString(p.name).trim(),
+      description: typeof p.description === 'string' ? p.description : coercePlainString(p.description),
       stock_quantity: 0,
-      category: p.category || '',
+      category: coercePlainString(p.category).trim(),
     });
     setStockTarget(p);
     setProductModalOpen(true);
@@ -309,13 +321,14 @@ export default function ProductsPage() {
     try {
       setErr('');
       if (productMode === 'create') {
-        if (!productForm.name.trim()) {
+        const nameStr = coercePlainString(productForm.name).trim();
+        if (!nameStr) {
           setErr('Lütfen listeden bir ürün seçin.');
           return;
         }
-        const unitFromCatalog = catalog.find((c) => c.name === productForm.name)?.unit || 'adet';
+        const unitFromCatalog = catalog.find((c) => c.name === nameStr)?.unit || 'adet';
         await api.createProduct({
-          name: productForm.name,
+          name: nameStr,
           description: productForm.description,
           minimum_stock: 0,
           unit: unitFromCatalog,
@@ -444,7 +457,7 @@ export default function ProductsPage() {
       ) : err ? (
         <div className="card" style={{ padding: 18, marginTop: 14 }}>
           <div style={{ fontWeight: 900, marginBottom: 8 }}>Hata</div>
-          <div className="muted">{err}</div>
+          <div className="muted">{typeof err === 'string' ? err : coercePlainString(err) || 'Hata'}</div>
         </div>
       ) : (
         <div className="grid productsGrid" style={{ marginTop: 14 }}>
@@ -484,7 +497,7 @@ export default function ProductsPage() {
                 (catalogLoading ||
                   Boolean(catalogErr) ||
                   (!catalogLoading && availableCatalog.length === 0) ||
-                  !productForm.name.trim())
+                  !coercePlainString(productForm.name).trim())
               }
             >
               Kaydet
@@ -517,8 +530,14 @@ export default function ProductsPage() {
                         setCatalogMenuOpen((o) => !o);
                       }}
                     >
-                      <span className={productForm.name ? 'productNameField__value' : 'productNameField__placeholder'}>
-                        {productForm.name || 'Ürün seçin…'}
+                      <span
+                        className={
+                          coercePlainString(productForm.name).trim()
+                            ? 'productNameField__value'
+                            : 'productNameField__placeholder'
+                        }
+                      >
+                        {coercePlainString(productForm.name).trim() || 'Ürün seçin…'}
                       </span>
                       <span className="productNameField__chevron" aria-hidden>
                         ▾
@@ -543,13 +562,13 @@ export default function ProductsPage() {
                         >
                           <button
                             type="button"
-                            className={`productNameMenu__item${!productForm.name ? ' productNameMenu__item--active' : ''}`}
+                            className={`productNameMenu__item${!coercePlainString(productForm.name).trim() ? ' productNameMenu__item--active' : ''}`}
                             role="option"
-                            aria-selected={!productForm.name}
+                            aria-selected={!coercePlainString(productForm.name).trim()}
                             onClick={() => clearProductSelection()}
                           >
                             <span className="productNameMenu__check" aria-hidden>
-                              {!productForm.name ? '✓' : ''}
+                              {!coercePlainString(productForm.name).trim() ? '✓' : ''}
                             </span>
                             Tüm ürünler
                           </button>
@@ -557,7 +576,7 @@ export default function ProductsPage() {
                             <div className="productNameMenu__empty">Eklenecek ürün kalmadı (hepsi stokta).</div>
                           ) : (
                             sortedAvailableCatalog.map((item) => {
-                              const selected = productForm.name === item.name;
+                              const selected = coercePlainString(productForm.name).trim() === item.name;
                               return (
                                 <button
                                   key={item.name}
@@ -580,7 +599,7 @@ export default function ProductsPage() {
                       )}
                   </>
                 ) : null}
-                {productForm.name ? (
+                {coercePlainString(productForm.name).trim() ? (
                   <div className="muted" style={{ fontSize: 12, marginTop: 10, lineHeight: 1.45 }}>
                     Aynı isimde daha önce görsel adresi kayıtlı bir ürün varsa otomatik devralınır.
                   </div>
@@ -590,7 +609,7 @@ export default function ProductsPage() {
           ) : (
             <div>
               <div className="label">Ürün</div>
-              <div style={{ fontWeight: 800 }}>{productForm.name}</div>
+              <div style={{ fontWeight: 800 }}>{coercePlainString(productForm.name).trim() || '—'}</div>
               <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>
                 Ad yalnızca katalogdan eklenir; burada değiştirilemez.
               </div>
