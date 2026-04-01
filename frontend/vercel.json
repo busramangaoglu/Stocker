@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    { "source": "/urun", "destination": "/", "permanent": false },
+    { "source": "/ürün", "destination": "/", "permanent": false },
+    { "source": "/urunler", "destination": "/", "permanent": false },
+    { "source": "/ürünler", "destination": "/", "permanent": false }
+  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

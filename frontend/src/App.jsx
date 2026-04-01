@@ -15,6 +15,10 @@ export default function App() {
           <Route path="/" element={<ProductsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/products" element={<Navigate to="/" replace />} />
+          <Route path="/urun" element={<Navigate to="/" replace />} />
+          <Route path="/ürün" element={<Navigate to="/" replace />} />
+          <Route path="/urunler" element={<Navigate to="/" replace />} />
+          <Route path="/ürünler" element={<Navigate to="/" replace />} />
           <Route path="/stock-movements" element={<StockMovementsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
