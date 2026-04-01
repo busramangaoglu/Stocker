@@ -27,7 +27,20 @@ app.use('/product-images', express.static(productImagesDir));
 
 app.get('/', (_req, res) => res.json({ status: 'ok', message: 'Stocker API çalışıyor' }));
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { explorer: true }));
+// Vercel serverless'ta swagger-ui-dist statik dosyaları sunulamaz; CDN kullan
+app.use(
+  '/api/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec, {
+    explorer: true,
+    customCssUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.min.js',
+    ],
+  }),
+);
 app.get('/api/docs.json', (req, res) => {
   res.json(openApiSpec);
 });
