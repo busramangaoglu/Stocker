@@ -15,9 +15,24 @@ const ALLOWED_HOSTS = new Set([
   'image.hurimg.com',
   'encrypted-tbn0.gstatic.com',
   'www.bettycrocker.com',
+  // Hürriyet CDN redirect hedefleri
+  'im.hurimg.com',
+  'cdn.hurimg.com',
+  'media.hurimg.com',
+  // Google görselleri
+  'lh3.googleusercontent.com',
+  'lh4.googleusercontent.com',
+  'lh5.googleusercontent.com',
+  'lh6.googleusercontent.com',
+  // Betty Crocker CDN
+  'assets.bettycrocker.com',
 ]);
 
-const CACHE_DIR = path.join(__dirname, '..', '..', 'app_cache', 'images');
+// Vercel serverless: /tmp dışı yazılamaz; yerel geliştirmede proje klasörü kullan
+const CACHE_DIR = process.env.VERCEL
+  ? '/tmp/stoker_img_cache'
+  : path.join(__dirname, '..', '..', 'app_cache', 'images');
+
 try {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 } catch {
@@ -155,22 +170,19 @@ function fetchAndCache(sourceUrl, res, depth) {
     const filePath = path.join(CACHE_DIR, key + ext);
     const tmpPath = filePath + '.tmp';
 
-    const fileStream = fs.createWriteStream(tmpPath);
+    let fileStream = null;
+    try { fileStream = fs.createWriteStream(tmpPath); } catch { /* /tmp yazılamıyorsa bellekten servis et */ }
     const chunks = [];
 
     inc.on('data', (chunk) => {
-      fileStream.write(chunk);
+      if (fileStream) fileStream.write(chunk);
       chunks.push(chunk);
     });
 
     inc.on('end', () => {
-      fileStream.end();
-      fileStream.on('finish', () => {
-        try { fs.renameSync(tmpPath, filePath); } catch { /* ignore */ }
+      const flush = () => {
         const waiters = pending.get(key) || [];
         pending.delete(key);
-
-        // Birincil yanıt
         if (!res.headersSent) {
           res.setHeader('Content-Type', ct || 'application/octet-stream');
           res.setHeader('Cache-Control', 'public, max-age=86400');
@@ -178,20 +190,34 @@ function fetchAndCache(sourceUrl, res, depth) {
           for (const c of chunks) res.write(c);
           res.end();
         }
-
-        // Bekleyen yanıtlar — dosyadan servis et
         for (const w of waiters) {
           if (!w.headersSent) {
             const cf = findCacheFile(key);
             if (cf) serveCachedFile(cf, w);
-            else w.status(502).end();
+            else {
+              w.setHeader('Content-Type', ct || 'application/octet-stream');
+              w.setHeader('Cache-Control', 'public, max-age=86400');
+              for (const c of chunks) w.write(c);
+              w.end();
+            }
           }
         }
-      });
+      };
+
+      if (fileStream) {
+        fileStream.end();
+        fileStream.on('finish', () => {
+          try { fs.renameSync(tmpPath, filePath); } catch { /* ignore */ }
+          flush();
+        });
+        fileStream.on('error', flush);
+      } else {
+        flush();
+      }
     });
 
     inc.on('error', () => {
-      try { fileStream.destroy(); fs.unlinkSync(tmpPath); } catch { /* ignore */ }
+      try { if (fileStream) { fileStream.destroy(); fs.unlinkSync(tmpPath); } } catch { /* ignore */ }
       const waiters = pending.get(key) || [];
       pending.delete(key);
       if (!res.headersSent) res.status(502).end();
