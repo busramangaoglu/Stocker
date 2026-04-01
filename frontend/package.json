@@ -7,9 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:fail": "npm run dev:fail --prefix ..",
-    "backend": "npm run dev --prefix ..",
-    "backend:fail": "npm run dev:fail --prefix .."
+    "dev:fail": "npm run dev:fail --prefix ../backend",
+    "backend": "npm run dev --prefix ../backend",
+    "backend:fail": "npm run dev:fail --prefix ../backend"
   },
   "dependencies": {
     "react": "^18.3.1",
