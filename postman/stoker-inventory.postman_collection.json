@@ -1,0 +1,184 @@
+{
+  "info": {
+    "name": "Stoker — Stok / Depo API",
+    "description": "Örnek istekler. `baseUrl` (örn. http://localhost:3000) ve çalışan API gerekir.\n\n**Veritabanı:** GET liste **o anda bağlı MongoDB’deki tüm ürünleri** döner. Compass’ta gördüğün verilerle aynı MongoDB’ye bağlı olduğundan emin ol. `POST ürün oluştur` başarılı olunca `productId` koleksiyon değişkenine yazılır (Tests sekmesi).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "productId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Ürünler",
+      "item": [
+        {
+          "name": "GET ürün listesi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products"
+          }
+        },
+        {
+          "name": "POST ürün oluştur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  if (pm.response.code === 201) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.data && j.data._id) {",
+                  "      pm.collectionVariables.set('productId', j.data._id);",
+                  "    }",
+                  "  }",
+                  "} catch (e) {}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Yeni Ürün\",\n  \"description\": \"Açıklama\",\n  \"stock_quantity\": 10,\n  \"minimum_stock\": 2,\n  \"unit\": \"adet\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/products"
+          }
+        },
+        {
+          "name": "GET tek ürün",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          }
+        },
+        {
+          "name": "PUT ürün güncelle",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Güncel isim\",\n  \"minimum_stock\": 5\n}"
+            },
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          }
+        },
+        {
+          "name": "DELETE ürün",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stok",
+      "item": [
+        {
+          "name": "POST stok giriş",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{productId}}\",\n  \"quantity\": 5,\n  \"description\": \"Tedarik\"\n}"
+            },
+            "url": "{{baseUrl}}/api/stock/in"
+          }
+        },
+        {
+          "name": "POST stok çıkış",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{productId}}\",\n  \"quantity\": 2,\n  \"description\": \"Satış\"\n}"
+            },
+            "url": "{{baseUrl}}/api/stock/out"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hareketler",
+      "item": [
+        {
+          "name": "GET tüm hareketler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/movements?limit=20"
+          }
+        },
+        {
+          "name": "GET son hareketler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/movements/recent?limit=10"
+          }
+        },
+        {
+          "name": "GET ürün hareketleri",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/movements/product/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Raporlar",
+      "item": [
+        {
+          "name": "GET kritik stok",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reports/critical"
+          }
+        },
+        {
+          "name": "GET tüketim (en çok çıkış)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reports/consumption?limit=5"
+          }
+        },
+        {
+          "name": "GET özet",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reports/summary"
+          }
+        },
+        {
+          "name": "GET dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reports/dashboard"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "inventory-management-backend",
+  "version": "1.0.0",
+  "description": "Stok / depo yönetim sistemi backend (Express + MongoDB)",
+  "main": "app/server.js",
+  "scripts": {
+    "start": "node app/server.js",
+    "dev": "node --watch-path=app --watch app/server.js",
+    "dev:safe": "SKIP_DB=1 node --watch-path=app --watch app/server.js",
+    "dev:fail": "DEV_ALLOW_DB_FAIL=1 node --watch-path=app --watch app/server.js",
+    "test": "node --test app/tests/*.js",
+    "diagnose:mongo": "node scripts/diagnose-mongo.js",
+    "seed": "node scripts/seed.js",
+    "sync-name-images": "node scripts/sync-name-images.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "inventory",
+    "stock",
+    "express",
+    "mongodb"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "joi": "^17.13.3",
+    "mongoose": "^9.3.3",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

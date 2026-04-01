@@ -1,0 +1,286 @@
+# Stoker — Stok / Depo Yönetim API (OpenAPI 3.0)
+# Postman / Swagger Editor ile import edilebilir. Sağlık (/health) uç noktası yoktur.
+
+openapi: 3.0.3
+info:
+  title: Stok / Depo Yönetim API
+  version: 1.0.0
+  description: |
+    Ürün CRUD, stok giriş/çıkış, hareket geçmişi, kritik stok ve raporlar.
+    Node.js, Express, MongoDB (Mongoose).
+
+    Stok miktarı PUT ile değişmez; stok giriş/çıkış veya ürün oluştururken başlangıç stoğu kullanılır.
+
+    Ürün yanıtında `image_url` veritabanında saklanan ham adrestir; `image_display_url` kartta kullanılacak çözülmüş adrestir
+    (`image_url` boşsa `image_key` ile varsayılan `/product-images/...`).     POST ile yeni üründe `image_url` gönderilmezse ve aynı ada
+    (büyük/küçük harf duyarsız) sahip başka bir üründe dolu `image_url` varsa, sunucu bu adresi yeni kayda kopyalar.
+    Ayrıca `product_name_images` koleksiyonunda ada göre kalıcı görsel URL saklanır; ürün silinse bile aynı isimle yeniden
+    eklenince bu adres kullanılır.
+
+servers:
+  - url: http://localhost:3000
+    description: Yerel
+  - url: /
+    description: Göreli
+
+tags:
+  - name: Products
+    description: Ürün CRUD
+  - name: Stock
+    description: Stok giriş ve çıkış
+  - name: Movements
+    description: Stok hareket geçmişi
+  - name: Reports
+    description: Raporlar ve özet
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        stock_quantity: { type: integer }
+        minimum_stock: { type: integer }
+        unit: { type: string }
+        category: { type: string, enum: ['food', 'beverage'] }
+        image_key: { type: string }
+        image_url: { type: string, description: Veritabanında saklanan görsel adresi (ham) }
+        image_display_url: { type: string, description: Arayüzde kullanılacak çözülmüş adres }
+        is_critical: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    StockMovement:
+      type: object
+      properties:
+        _id: { type: string }
+        product_id: { type: string }
+        product_name: { type: string }
+        unit: { type: string }
+        movement_type: { type: string, enum: [IN, OUT] }
+        quantity: { type: integer }
+        description: { type: string }
+        created_at: { type: string, format: date-time }
+    ApiSuccess:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        data: {}
+    ApiError:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string }
+        details:
+          type: array
+          items: { type: object }
+
+paths:
+  /api/products:
+    get:
+      tags: [Products]
+      summary: Tüm ürünleri listele
+      responses:
+        '200':
+          description: Liste
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiSuccess' }
+    post:
+      tags: [Products]
+      summary: Yeni ürün oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: GET /api/products/catalog ile dönen adlardan biri olmalı }
+                description: { type: string }
+                stock_quantity: { type: integer, minimum: 0 }
+                minimum_stock: { type: integer, minimum: 0 }
+                unit: { type: string }
+                category: { type: string, enum: ['food', 'beverage'] }
+                image_url: { type: string, description: Opsiyonel; gönderilmezse aynı ada sahip ürünün image_url devir alınır }
+      responses:
+        '201': { description: Oluşturuldu }
+        '400': { description: Doğrulama hatası }
+
+  /api/products/catalog:
+    get:
+      tags: [Products]
+      summary: Eklenebilir ürün kataloğu
+      description: POST ile oluşturulabilecek ürün adları, kategori ve birim şablonları (sabit liste).
+      responses:
+        '200':
+          description: Katalog dizisi
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiSuccess' }
+
+  /api/products/{id}:
+    get:
+      tags: [Products]
+      summary: Tek ürün getir
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+        '404': { description: Bulunamadı }
+    put:
+      tags: [Products]
+      summary: Ürün güncelle (stock_quantity yok)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                minimum_stock: { type: integer }
+                unit: { type: string }
+                category: { type: string, enum: ['food', 'beverage'] }
+                image_url: { type: string }
+      responses:
+        '200': { description: OK }
+        '404': { description: Bulunamadı }
+    delete:
+      tags: [Products]
+      summary: Ürün sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Silindi }
+        '404': { description: Bulunamadı }
+
+  /api/stock/in:
+    post:
+      tags: [Stock]
+      summary: Stok girişi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, quantity]
+              properties:
+                product_id: { type: string }
+                quantity: { type: integer, minimum: 1 }
+                description: { type: string }
+      responses:
+        '200': { description: OK }
+        '404': { description: Ürün yok }
+
+  /api/stock/out:
+    post:
+      tags: [Stock]
+      summary: Stok çıkışı
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, quantity]
+              properties:
+                product_id: { type: string }
+                quantity: { type: integer, minimum: 1 }
+                description: { type: string }
+      responses:
+        '200': { description: OK }
+        '400': { description: Yetersiz stok }
+        '404': { description: Ürün yok }
+
+  /api/movements:
+    get:
+      tags: [Movements]
+      summary: Hareketleri listele
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: skip
+          in: query
+          schema: { type: integer }
+        - name: product_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /api/movements/recent:
+    get:
+      tags: [Movements]
+      summary: Son hareketler
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+
+  /api/movements/product/{productId}:
+    get:
+      tags: [Movements]
+      summary: Ürüne göre hareketler
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 500 }
+        - name: skip
+          in: query
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200': { description: OK }
+
+  /api/reports/critical:
+    get:
+      tags: [Reports]
+      summary: Kritik stoktaki ürünler
+      responses:
+        '200': { description: OK }
+
+  /api/reports/consumption:
+    get:
+      tags: [Reports]
+      summary: En çok çıkış yapılan ürünler
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+
+  /api/reports/summary:
+    get:
+      tags: [Reports]
+      summary: Toplam stok özeti
+      responses:
+        '200': { description: OK }
+
+  /api/reports/dashboard:
+    get:
+      tags: [Reports]
+      summary: Dashboard verisi
+      responses:
+        '200': { description: OK }
