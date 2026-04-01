@@ -164,6 +164,14 @@ export default function ProductsPage() {
     return [...availableCatalog].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
   }, [availableCatalog]);
 
+  /** Katalog seçicide liste boşsa: stok değil, “bu isimde envanter kaydı var mı” kuralı geçerli. */
+  const catalogPickerEmptyExplanation = useMemo(() => {
+    if (!catalog.length) {
+      return 'Katalog listesi boş veya sunucudan gelmedi. Sayfayı yenileyin; sorun sürerse API adresini (VITE_API_BASE_URL) kontrol edin.';
+    }
+    return 'Katalogdaki tüm ürün adları zaten envanterde kayıtlı. Stok miktarı 0 olsa bile aynı isimle ikinci kayıt açılamaz. Miktar eklemek için listedeki ürün kartından "Stoka giriş" kullanın; kaydı kaldırmak için "Sil".';
+  }, [catalog.length]);
+
   useEffect(() => {
     const sync = () => setGlobalThreshold(getGlobalCriticalThreshold());
     window.addEventListener('stoker-critical-threshold-changed', sync);
@@ -570,10 +578,10 @@ export default function ProductsPage() {
                             <span className="productNameMenu__check" aria-hidden>
                               {!coercePlainString(productForm.name).trim() ? '✓' : ''}
                             </span>
-                            Tüm ürünler
+                            Ürün seçilmedi
                           </button>
                           {sortedAvailableCatalog.length === 0 ? (
-                            <div className="productNameMenu__empty">Eklenecek ürün kalmadı (hepsi stokta).</div>
+                            <div className="productNameMenu__empty">{catalogPickerEmptyExplanation}</div>
                           ) : (
                             sortedAvailableCatalog.map((item) => {
                               const selected = coercePlainString(productForm.name).trim() === item.name;
