@@ -8,6 +8,9 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 }
 
 async function connectDatabase() {
+  // Serverless warm-start: bağlantı zaten açıksa tekrar bağlanma
+  if (mongoose.connection.readyState === 1) return mongoose.connection;
+
   mongoose.set('strictQuery', true);
 
   const opts = {
