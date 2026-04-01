@@ -13,6 +13,7 @@ import {
   normalizeCatalogItem,
   normalizeProductRow,
 } from '../lib/coerceString.js';
+import { getApiBase } from '../lib/apiBase.js';
 
 function Avatar({ name, critical }) {
   const letters = (name || '')
@@ -167,7 +168,11 @@ export default function ProductsPage() {
   /** Katalog seçicide liste boşsa: stok değil, “bu isimde envanter kaydı var mı” kuralı geçerli. */
   const catalogPickerEmptyExplanation = useMemo(() => {
     if (!catalog.length) {
-      return 'Katalog listesi boş veya sunucudan gelmedi. Sayfayı yenileyin; sorun sürerse API adresini (VITE_API_BASE_URL) kontrol edin.';
+      const apiBase = getApiBase();
+      if (import.meta.env.PROD && !apiBase) {
+        return 'Ürün listesi yüklenemiyor: arka uç adresi tanımlı değil. Vercel’de bu (ön yüz) projesinin Environment Variables kısmına VITE_API_BASE_URL ekleyin — değer olarak backend sitenizin tam adresi (ör. https://stocker-backend.vercel.app, sonda / yok). Kaydettikten sonra yeniden deploy edin; aksi halde istekler yanlış adrese gider ve katalog boş kalır.';
+      }
+      return 'Ürün listesi sunucudan alınamadı veya boş geldi. Sayfayı yenileyin. Sorun sürerse backend’in ayakta olduğunu, Vercel’de VITE_API_BASE_URL değerinin doğru olduğunu ve tarayıcı geliştirici araçlarındaki (Ağ sekmesi) hataları kontrol edin.';
     }
     return 'Katalogdaki tüm ürün adları zaten envanterde kayıtlı. Stok miktarı 0 olsa bile aynı isimle ikinci kayıt açılamaz. Miktar eklemek için listedeki ürün kartından "Stoka giriş" kullanın; kaydı kaldırmak için "Sil".';
   }, [catalog.length]);
