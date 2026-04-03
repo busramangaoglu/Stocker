@@ -1,74 +1,61 @@
 # Gereksinim Analizi — Stocker Envanter Yönetim Sistemi
 
----
+1. **Tüm Ürünleri Listeleme**
+   - **API Metodu:** `GET /api/products`
+   - **Açıklama:** Envanterde kayıtlı tüm ürünlerin stok bilgileriyle birlikte listelenmesini sağlar. Her ürün için ad, açıklama, mevcut stok miktarı, kategori, görsel ve kritik stok durumu bilgileri gösterilir. Kullanıcılar bu liste üzerinden ürün kartlarını görüntüleyebilir.
 
-## 1. Proje Genel Bakış
+2. **Ürün Kataloğunu Görüntüleme**
+   - **API Metodu:** `GET /api/products/catalog`
+   - **Açıklama:** Sisteme eklenebilecek sabit ürün listesini getirir. Katalog; Ayran, Ekmek, Kola, Su gibi önceden tanımlanmış ürün adlarını, kategorilerini ve birim bilgilerini içerir. Yeni ürün eklenirken yalnızca bu listedeki adlar kullanılabilir.
 
-Stocker, işletmelerin ürün stoklarını dijital ortamda takip etmesini sağlayan web tabanlı bir envanter yönetim sistemidir. Kullanıcılar ürün ekleyebilir, stok giriş/çıkış işlemi yapabilir ve raporlar aracılığıyla stok durumunu anlık olarak izleyebilir.
+3. **Tek Ürün Görüntüleme**
+   - **API Metodu:** `GET /api/products/{id}`
+   - **Açıklama:** Belirli bir ürünün tüm detay bilgilerini getirir. Ürün adı, açıklama, stok miktarı, minimum stok eşiği, kategori ve görsel URL bilgileri döndürülür. Ürün bulunamazsa 404 hatası döner.
 
----
+4. **Yeni Ürün Oluşturma**
+   - **API Metodu:** `POST /api/products`
+   - **Açıklama:** Katalogdan seçilen bir ürün adıyla envantere yeni ürün kaydı oluşturur. Aynı isimde daha önce eklenmiş bir ürün varsa işlem reddedilir. Oluşturma sırasında başlangıç stok miktarı belirtilebilir; bu durumda otomatik olarak bir stok giriş hareketi de kaydedilir.
 
-## 2. Fonksiyonel Gereksinimler
+5. **Ürün Güncelleme**
+   - **API Metodu:** `PUT /api/products/{id}`
+   - **Açıklama:** Mevcut bir ürünün açıklama ve kategori bilgilerini günceller. Ürün adı ve stok miktarı bu işlemle değiştirilemez; stok yalnızca giriş/çıkış endpoint'leri aracılığıyla güncellenebilir. Ürün bulunamazsa 404 hatası döner.
 
-### 2.1 Ürün Yönetimi
-- **GRN-001:** Sistem, sabit bir ürün kataloğu sunmalıdır (Ayran, Ekmek, Kola, Su vb.).
-- **GRN-002:** Kullanıcı katalogdan seçerek envantere yeni ürün ekleyebilmelidir.
-- **GRN-003:** Aynı isimde ikinci bir ürün kaydı açılamamalıdır.
-- **GRN-004:** Kullanıcı mevcut ürünün açıklama ve kategori bilgisini güncelleyebilmelidir.
-- **GRN-005:** Kullanıcı ürünü ve ilgili stok hareketlerini silebilmelidir.
-- **GRN-006:** Her ürün için görsel (resim) atanmalı; görsel yoksa baş harf avatarı gösterilmelidir.
+6. **Ürün Silme**
+   - **API Metodu:** `DELETE /api/products/{id}`
+   - **Açıklama:** Seçilen ürünü ve bu ürüne ait tüm stok hareketlerini kalıcı olarak siler. Bu işlem geri alınamaz. Silme işlemi bir transaction içinde gerçekleştirilir; hareket silme başarısız olursa ürün de silinmez.
 
-### 2.2 Stok Hareketleri
-- **GRN-007:** Kullanıcı ürüne stoka giriş (IN) işlemi yapabilmelidir.
-- **GRN-008:** Kullanıcı üründen stoktan çıkış (OUT) işlemi yapabilmelidir.
-- **GRN-009:** Her işlemde miktar ve açıklama girilebilmelidir.
-- **GRN-010:** Stok miktarı hiçbir zaman 0'ın altına düşürülememeli (sunucu kuralı).
-- **GRN-011:** Tüm giriş/çıkış hareketleri tarih sırasıyla listelenebilmelidir.
+7. **Stoka Giriş**
+   - **API Metodu:** `POST /api/stock/in`
+   - **Açıklama:** Seçilen ürünün stok miktarını artırır ve bir IN (giriş) hareketi kaydeder. Girilecek miktar ve açıklama bilgisi istekle birlikte gönderilir. Tedarik, sipariş veya iade gibi durumlarda kullanılır. Ürün bulunamazsa 404 hatası döner.
 
-### 2.3 Kritik Stok Uyarısı
-- **GRN-012:** Kullanıcı global bir kritik stok eşiği belirleyebilmelidir.
-- **GRN-013:** Stoğu eşik değerinin altında veya eşit olan ürün kartları kırmızıyla vurgulanmalıdır.
-- **GRN-014:** Kritik ürünlerin listesi sayfa üstünde uyarı olarak gösterilmelidir.
-- **GRN-015:** Eşik değeri tarayıcıda (localStorage) saklanmalıdır.
+8. **Stoktan Çıkış**
+   - **API Metodu:** `POST /api/stock/out`
+   - **Açıklama:** Seçilen ürünün stok miktarını azaltır ve bir OUT (çıkış) hareketi kaydeder. Mevcut stok, çıkış miktarından az ise işlem reddedilerek 400 hatası döner; stok hiçbir zaman eksi değere düşürülemez. Satış, kullanım veya fire gibi durumlarda kullanılır.
 
-### 2.4 Raporlar ve Gösterge Paneli
-- **GRN-016:** Gösterge paneli toplam ürün sayısı, kritik ürün sayısı ve toplam stok özetini göstermelidir.
-- **GRN-017:** Son stok hareketleri grafik üzerinde görselleştirilmelidir.
-- **GRN-018:** Kritik stok raporu, eşik altındaki ürünleri listeleyerek dışarı aktarılabilir olmalıdır.
-- **GRN-019:** Tüketim raporu en çok çıkış yapılan ürünleri göstermelidir.
+9. **Tüm Stok Hareketlerini Listeleme**
+   - **API Metodu:** `GET /api/movements`
+   - **Açıklama:** Tüm ürünlere ait stoka giriş ve stoktan çıkış hareketlerini zaman sırасıyla listeler. Limit, skip ve ürün ID'si ile sayfalama ve filtreleme yapılabilir. Her hareket için ürün adı, hareket tipi (IN/OUT), miktar, açıklama ve tarih bilgileri döndürülür.
 
-### 2.5 Arama ve Filtreleme
-- **GRN-020:** Ürünler isim veya açıklamaya göre aranabilmelidir.
-- **GRN-021:** Ürünler kategoriye (Yiyecek / İçecek) göre filtrelenebilmelidir.
-- **GRN-022:** Yalnızca kritik stoktaki ürünler filtresiyle gösterilebilmelidir.
+10. **Son Hareketleri Getirme**
+    - **API Metodu:** `GET /api/movements/recent`
+    - **Açıklama:** En son gerçekleştirilen N adet stok hareketini getirir. Gösterge panelinde son işlemlerin hızlıca görüntülenmesi için kullanılır. Limit parametresiyle kaç hareket getirileceği belirlenebilir.
 
----
+11. **Ürüne Göre Hareketleri Listeleme**
+    - **API Metodu:** `GET /api/movements/product/{productId}`
+    - **Açıklama:** Belirli bir ürüne ait tüm stok giriş ve çıkış hareketlerini listeler. Gösterge panelinde tek bir ürün seçildiğinde o ürünün tam hareket geçmişi bu endpoint aracılığıyla alınır. Limit ve skip parametreleriyle sayfalama desteklenir.
 
-## 3. Fonksiyonel Olmayan Gereksinimler
+12. **Kritik Stok Raporu**
+    - **API Metodu:** `GET /api/reports/critical`
+    - **Açıklama:** Stok miktarı minimum stok eşiğinin altında olan veya eşit olan ürünleri listeler. Bu rapor sayesinde tükenmek üzere olan ürünler tespit edilerek zamanında tedarik yapılabilir. Arayüzde kırmızı uyarı olarak da gösterilir.
 
-| ID | Gereksinim | Açıklama |
-|----|-----------|----------|
-| NFR-001 | Performans | API yanıt süresi 2 saniyenin altında olmalıdır. |
-| NFR-002 | Güvenilirlik | Servis %99 uptime ile çalışmalıdır. |
-| NFR-003 | Güvenlik | API, geçersiz girdilere karşı Joi şema doğrulaması uygulamalıdır. |
-| NFR-004 | Ölçeklenebilirlik | Serverless mimarisi ile Vercel üzerinde konuşlandırılabilmelidir. |
-| NFR-005 | Erişilebilirlik | Arayüz mobil cihazlarda da kullanılabilir olmalıdır. |
-| NFR-006 | Dokümantasyon | Tüm API endpoint'leri Swagger UI ile belgelenmelidir. |
+13. **Tüketim Raporu**
+    - **API Metodu:** `GET /api/reports/consumption`
+    - **Açıklama:** Belirli bir dönemde en çok stoktan çıkış yapılan ürünleri sıralar. Hangi ürünlerin daha hızlı tüketildiğini gösterir; sipariş ve planlama kararlarına yardımcı olur. Limit parametresiyle kaç ürünün listeleneceği belirlenebilir.
 
----
+14. **Özet İstatistikler**
+    - **API Metodu:** `GET /api/reports/summary`
+    - **Açıklama:** Envanterin genel durumunu özetleyen istatistikleri döndürür. Toplam ürün sayısı, kritik stokta olan ürün sayısı ve tüm ürünlerin toplam stok miktarı tek istekle elde edilir. Gösterge panelindeki özet kartları bu verilerle doldurulur.
 
-## 4. Kullanıcı Rolleri
-
-| Rol | Yetkiler |
-|-----|---------|
-| Kullanıcı | Ürün ekleme, düzenleme, silme; stok giriş/çıkış; raporlar görüntüleme |
-
-> Mevcut sürümde kimlik doğrulama (auth) bulunmamaktadır; tüm kullanıcılar tam yetkilidir.
-
----
-
-## 5. Kısıtlamalar
-
-- Ürün adları sabit katalogla sınırlıdır; serbest isim girilemez.
-- Stok miktarı yalnızca giriş/çıkış endpoint'leri aracılığıyla değiştirilebilir.
-- Görseller yalnızca katalogda tanımlı URL'lerden veya önceki kayıtlardan devralınır.
+15. **Gösterge Paneli Verisi**
+    - **API Metodu:** `GET /api/reports/dashboard`
+    - **Açıklama:** Gösterge panelinin ihtiyaç duyduğu özet istatistikler ve son stok hareketlerini tek bir istekle döndürür. Sayfa yüklenirken birden fazla istek yerine tek bir çağrıyla tüm panel verileri alınabilir; böylece performans artırılır.

@@ -1,0 +1,263 @@
+{
+  "info": {
+    "_postman_id": "206b02fa-e43b-4f49-8d02-7e4178bf153f",
+    "name": "StockerPostman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50543383",
+    "_collection_link": "https://go.postman.co/collection/50543383-206b02fa-e43b-4f49-8d02-7e4178bf153f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "getProducts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/products",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "addProducts",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Sprite\",\n  \"description\": \"string\",\n  \"stock_quantity\": 100,\n  \"minimum_stock\": 0,\n  \"unit\": \"string\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/products",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getProductById",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/products/69d0125d57fb1a89059e994e",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "products",
+            "69d0125d57fb1a89059e994e"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updateProduct",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Sprite\",\n  \"description\": \"string\",\n  \"minimum_stock\": 60,\n  \"unit\": \"string\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/products/69d0125d57fb1a89059e994e",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "products",
+            "69d0125d57fb1a89059e994e"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deleteProduct",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/products/69d0125d57fb1a89059e994e",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "products",
+            "69d0125d57fb1a89059e994e"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "recentsByLimit",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/movements/recent?limit=1",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "movements",
+            "recent"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "productMovementById",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/movements/product/69cd7c9eb13726fc756b04a1",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "movements",
+            "product",
+            "69cd7c9eb13726fc756b04a1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/reports/summary",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "summary"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "dashboard",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/reports/dashboard",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "dashboard"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "stockOut",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"product_id\": \"69cd7c9eb13726fc756b04a1\",\n  \"quantity\": 1,\n  \"description\": \"string\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://stocker-vou5.vercel.app/api/stock/out",
+          "protocol": "https",
+          "host": [
+            "stocker-vou5",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "stock",
+            "out"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

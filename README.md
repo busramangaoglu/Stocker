@@ -42,19 +42,6 @@ Stocker, küçük ve orta ölçekli işletmeler için geliştirilmiş web tabanl
 
 ---
 
-## Özellikler
-
-- Sabit ürün kataloğundan ürün ekleme (Ayran, Ekmek, Kola, Su vb.)
-- Stoka giriş / stoktan çıkış ve hareket geçmişi
-- Global kritik stok eşiği — eşik altı ürünler kırmızı ile vurgulanır
-- Ürün görselleri (Wikimedia, Hürriyet CDN — backend proxy üzerinden)
-- Gösterge paneli: özet istatistikler ve stok hareket grafiği
-- Raporlar: kritik stok listesi, tüketim raporu
-- Tam REST API + Swagger UI dokümantasyonu
-- Mobil uyumlu arayüz
-
----
-
 ## Dokümantasyon
 
 1. [Gereksinim Analizi](Gereksinim-Analizi.md)
@@ -65,87 +52,4 @@ Stocker, küçük ve orta ölçekli işletmeler için geliştirilmiş web tabanl
 6. [Mobil Backend](MobilBackEnd.md)
 7. [Video Sunum](Sunum.md)
 
----
 
-## Yerel Geliştirme Ortamı
-
-### Gereksinimler
-- Node.js 18+
-- MongoDB (yerel veya Atlas)
-
-### Backend'i Başlatma
-
-```bash
-cd stoker
-cp .env.example .env   # .env içine MONGODB_URI yaz
-npm install
-npm run dev
-```
-
-Backend `http://localhost:3000` adresinde çalışır.
-Swagger UI: `http://localhost:3000/api/docs`
-
-### Frontend'i Başlatma
-
-```bash
-cd stoker/frontend
-npm install
-npm run dev
-```
-
-Frontend `http://localhost:5173` adresinde çalışır. Vite proxy sayesinde API istekleri otomatik `localhost:3000`'e yönlendirilir.
-
----
-
-## Vercel Deploy Ayarları
-
-### Frontend (stocker-olive)
-
-| Ayar | Değer |
-|------|-------|
-| Root Directory | `stoker/frontend` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-
-**Environment Variables:**
-
-| Değişken | Değer |
-|----------|-------|
-| `VITE_API_BASE_URL` | `https://stocker-vou5.vercel.app` |
-
-### Backend (stocker-vou5)
-
-| Ayar | Değer |
-|------|-------|
-| Root Directory | `stoker/backend` |
-| Build Command | — |
-| Output Directory | — |
-
-**Environment Variables:**
-
-| Değişken | Açıklama |
-|----------|----------|
-| `MONGODB_URI` | MongoDB Atlas bağlantı dizesi |
-| `CORS_ORIGINS` | İzinli frontend adresi (ör. `https://stocker-olive.vercel.app`) |
-| `NODE_ENV` | `production` |
-
-> **Not:** MongoDB Atlas → Network Access kısmında `0.0.0.0/0` IP izni tanımlı olmalıdır (Vercel sabit IP kullanmaz).
-
----
-
-## API Endpoint Özeti
-
-| Metot | Yol | Açıklama |
-|-------|-----|----------|
-| GET | `/api/products` | Tüm ürünleri listele |
-| GET | `/api/products/catalog` | Eklenebilir ürün kataloğu |
-| POST | `/api/products` | Yeni ürün oluştur |
-| PUT | `/api/products/:id` | Ürün güncelle |
-| DELETE | `/api/products/:id` | Ürün sil |
-| POST | `/api/stock/in` | Stoka giriş |
-| POST | `/api/stock/out` | Stoktan çıkış |
-| GET | `/api/movements` | Stok hareketleri |
-| GET | `/api/reports/critical` | Kritik stok raporu |
-| GET | `/api/reports/dashboard` | Gösterge paneli özeti |
-
-Tam dokümantasyon: [Swagger UI](https://stocker-vou5.vercel.app/api/docs)

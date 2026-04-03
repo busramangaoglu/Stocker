@@ -1,102 +1,110 @@
-# Web Front-End — Stocker
+# Web Frontend Görev Dağılımı
 
-Canlı site: [stocker-olive.vercel.app](https://stocker-olive.vercel.app)
+**Web Frontend Adresi:** [stocker](https://stocker-olive.vercel.app/)
 
----
-
-## Teknoloji Yığını
-
-| Araç | Versiyon | Kullanım Amacı |
-|------|----------|----------------|
-| React | 18 | UI bileşenleri |
-| Vite | 5 | Build aracı ve geliştirme sunucusu |
-| React Router v6 | 6 | Sayfa yönlendirme (SPA) |
-| Vanilla CSS | — | Stil (global.css) |
+Bu dokümanda, web uygulamasının kullanıcı arayüzü (UI) ve kullanıcı deneyimi (UX) görevleri listelenmektedir. Her grup üyesi, kendisine atanan sayfaların tasarımı, implementasyonu ve kullanıcı etkileşimlerinden sorumludur.
 
 ---
 
-## Kurulum
 
-```bash
-cd stoker/frontend
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # dist/ klasörüne üretim build'i
-```
+## Genel Web Frontend Prensipleri
+
+### 1. Responsive Tasarım
+- **Mobile-First Approach:** Önce mobil tasarım, sonra desktop
+- **Breakpoints:**
+  - Mobile: < 768px
+  - Tablet: 768px - 1024px
+  - Desktop: > 1024px
+- **Flexible Layouts:** CSS Grid ve Flexbox kullanımı
+- **Responsive Images:** srcset ve sizes attributes
+- **Touch-Friendly:** Minimum 44x44px touch targets
+
+### 2. Tasarım Sistemi
+- **CSS Framework:** Bootstrap, Tailwind CSS, Material-UI, veya custom
+- **Renk Paleti:** Tutarlı renk kullanımı (CSS variables)
+- **Tipografi:** Web-safe fonts veya web fonts (Google Fonts)
+- **Spacing:** Tutarlı padding ve margin değerleri (8px grid sistemi)
+- **Iconography:** Icon library (Font Awesome, Material Icons, Heroicons)
+- **Component Library:** Reusable UI components
+
+### 3. Performans Optimizasyonu
+- **Code Splitting:** Route-based ve component-based splitting
+- **Lazy Loading:** Images, components, ve routes
+- **Minification:** CSS ve JavaScript minification
+- **Compression:** Gzip/Brotli compression
+- **Caching:** Browser caching, service worker (PWA)
+- **Bundle Size:** Tree shaking, dead code elimination
+
+### 4. SEO (Search Engine Optimization)
+- **Meta Tags:** Title, description, keywords
+- **Structured Data:** JSON-LD schema markup
+- **Semantic HTML:** Proper HTML5 semantic elements
+- **Alt Text:** Image alt attributes
+- **Sitemap:** XML sitemap generation
+- **Robots.txt:** Search engine crawling rules
+
+### 5. Erişilebilirlik (Accessibility)
+- **WCAG 2.1 AA Compliance:** Minimum accessibility standard
+- **Keyboard Navigation:** Tab order, focus management
+- **Screen Reader Support:** ARIA labels, roles, landmarks
+- **Color Contrast:** Minimum 4.5:1 ratio
+- **Focus Indicators:** Visible focus states
+- **Skip Links:** Skip to main content
+
+### 6. Browser Compatibility
+- **Modern Browsers:** Chrome, Firefox, Safari, Edge (son 2 versiyon)
+- **Polyfills:** ES6+ features için gerekli polyfills
+- **CSS Prefixes:** Autoprefixer kullanımı
+- **Feature Detection:** Modernizr veya native feature detection
+- **Graceful Degradation:** Eski tarayıcılar için fallback
+
+### 7. State Management
+- **Global State:** Redux, Zustand, Context API (React), Vuex/Pinia (Vue)
+- **Local State:** Component state, hooks
+- **Server State:** React Query, SWR, Apollo Client
+- **Form State:** React Hook Form, Formik, React Final Form
+
+### 8. Routing
+- **Client-Side Routing:** React Router, Vue Router, Angular Router
+- **Deep Linking:** URL-based navigation
+- **Protected Routes:** Authentication guards
+- **404 Handling:** Custom 404 page
+- **History Management:** Browser history API
+
+### 9. API Entegrasyonu
+- **HTTP Client:** Axios, Fetch API, ky
+- **Request Interceptors:** Token injection, error handling
+- **Response Interceptors:** Error handling, token refresh
+- **Error Handling:** Centralized error handling
+- **Loading States:** Global loading indicator
+
+### 10. Testing
+- **Unit Tests:** Jest, Vitest, Mocha
+- **Integration Tests:** React Testing Library, Vue Test Utils
+- **E2E Tests:** Cypress, Playwright, Selenium
+- **Visual Regression:** Percy, Chromatic
+- **Accessibility Tests:** axe-core, Lighthouse
+
+### 11. Build ve Deployment
+- **Build Tool:** Webpack, Vite, Parcel, esbuild
+- **Module Bundler:** ES modules, CommonJS
+- **Environment Variables:** .env files
+- **CI/CD:** GitHub Actions, GitLab CI, Jenkins
+- **Hosting:** Vercel, Netlify, AWS, Azure
 
 ---
 
-## Klasör Yapısı
+## Stocker Web Front-End — Teknik Özet
 
-```
-frontend/
-├── src/
-│   ├── assets/          # Logo ve statik görseller
-│   ├── components/      # Ortak bileşenler (Modal, ConfirmModal, TopNav)
-│   ├── lib/             # Yardımcı fonksiyonlar (api.js, imageUrl.js, ...)
-│   ├── pages/           # Sayfa bileşenleri
-│   │   ├── ProductsPage.jsx       # Ana sayfa — ürün listesi ve yönetimi
-│   │   ├── DashboardPage.jsx      # Gösterge paneli ve grafik
-│   │   ├── StockMovementsPage.jsx # Stok hareket geçmişi
-│   │   └── ReportsPage.jsx        # Kritik eşik ayarı ve raporlar
-│   ├── styles/
-│   │   └── global.css   # Tüm stil tanımları
-│   ├── App.jsx           # Route tanımları
-│   └── main.jsx          # React uygulaması giriş noktası
-├── index.html
-├── vite.config.js
-└── vercel.json           # Vercel SPA yönlendirmesi
-```
+| Araç | Kullanım |
+|------|----------|
+| React 18 | UI bileşenleri |
+| Vite 5 | Build ve geliştirme sunucusu |
+| React Router v6 | SPA yönlendirme |
+| Vanilla CSS | `global.css` |
 
----
+**Kurulum:** `cd frontend && npm install && npm run dev` (varsayılan: `http://localhost:5173`)
 
-## Sayfalar
+**API:** `src/lib/api.js` — geliştirmede Vite proxy, üretimde `VITE_API_BASE_URL` ([Rest-API.md](Rest-API.md) ve README ile uyumlu).
 
-### Ürünler (`/`)
-- Ürün kartları grid görünümü
-- Stoka giriş / stoktan çıkış butonları
-- Ürün ekleme, düzenleme ve silme
-- İsim/açıklama arama, kategori filtresi
-- Kritik stok filtresi ve uyarı bandı
-
-### Gösterge Paneli (`/dashboard`)
-- Toplam ürün, kritik ürün, toplam stok özeti
-- Ürüne göre filtrelenebilir stok hareket grafiği
-
-### Stok Hareketleri (`/stock-movements`)
-- Tüm giriş/çıkış hareketlerinin zaman sırası ile listesi
-- Renk kodlaması: yeşil giriş, kırmızı çıkış
-
-### Kritik Eşik / Raporlar (`/reports`)
-- Global kritik eşik değerini ayarlama (localStorage)
-- Kritik stok altındaki ürünler listesi
-- Tüketim raporu
-
----
-
-## API Bağlantısı
-
-`src/lib/api.js` — tüm API çağrıları bu dosyada merkezi olarak yönetilir.
-
-```js
-// Geliştirme: Vite proxy → localhost:3000
-// Üretim:    VITE_API_BASE_URL env değişkeni
-```
-
-**Vercel'de gerekli Environment Variable:**
-
-| Değişken | Değer |
-|----------|-------|
-| `VITE_API_BASE_URL` | `https://stocker-vou5.vercel.app` |
-
----
-
-## Vercel Deploy
-
-`frontend/vercel.json` dosyası SPA yönlendirmesini sağlar — tüm istekler `index.html`'e yönlendirilir:
-
-```json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
-```
+**Sayfalar:** `/` ürünler, `/dashboard` gösterge paneli, `/stock-movements` stok hareketleri, `/reports` kritik eşik ve raporlar.

@@ -1,6 +1,6 @@
 # Stocker REST API Metotları
 
-**API Test Videosu:** [Link buraya eklenecek](https://example.com)
+**API Test Videosu:** [Link buraya eklenecek](https://www.youtube.com/watch?v=LMzq-l9Te5I)
 
 **Canlı Swagger UI:** [stocker-vou5.vercel.app/api/docs](https://stocker-vou5.vercel.app/api/docs)
 
