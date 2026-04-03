@@ -1,6 +1,9 @@
 # Web Frontend Görev Dağılımı
 
 **Web Frontend Adresi:** [stocker](https://stocker-olive.vercel.app/)
+**Web Frontend Videosu:** [Link buraya eklenecek](https://youtu.be/LLEFoe7VbtU)
+
+
 
 Bu dokümanda, web uygulamasının kullanıcı arayüzü (UI) ve kullanıcı deneyimi (UX) görevleri listelenmektedir. Her grup üyesi, kendisine atanan sayfaların tasarımı, implementasyonu ve kullanıcı etkileşimlerinden sorumludur.
 

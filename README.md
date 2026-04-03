@@ -9,8 +9,6 @@ Stocker, küçük ve orta ölçekli işletmeler için geliştirilmiş web tabanl
 
 **Proje Kategorisi:** Stok / Envanter Yönetimi
 
-**Referans Uygulama:** [Stocker Canlı Demo](https://stocker-olive.vercel.app)
-
 ---
 
 ## Proje Linkleri

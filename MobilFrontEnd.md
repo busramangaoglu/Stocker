@@ -8,7 +8,11 @@
 
 ## Mobil Uyumluluk
 
-Web uygulaması ([stocker-olive.vercel.app](https://stocker-olive.vercel.app)) aşağıdaki mobil
+Web uygulaması ([stocker-olive.vercel.app](https://stocker-olive.vercel.app))
+**Web Frontend Videosu:** [Link buraya eklenecek](https://youtu.be/LLEFoe7VbtU)
+
+
+ aşağıdaki mobil
 özelliklerle donatılmıştır:
 
 | Özellik | Detay |
