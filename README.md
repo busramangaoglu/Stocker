@@ -4,6 +4,8 @@
 
 ## Proje Hakkında
 
+![Ürün Tanıtım Görseli](Product.png)
+
 **Proje Tanımı:**
 Stocker, küçük ve orta ölçekli işletmeler için geliştirilmiş web tabanlı bir envanter (stok) yönetim sistemidir. Sabit bir ürün kataloğundan ürün eklenebilir; stoka giriş / stoktan çıkış işlemleri kaydedilir ve tüm hareketler geçmişiyle izlenebilir. Kritik stok eşiği aşıldığında görsel uyarılar gösterilir; özet raporlar ve grafik destekli gösterge paneli ile stok durumu anlık olarak takip edilebilir.
 
