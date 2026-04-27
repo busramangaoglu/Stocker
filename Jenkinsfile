@@ -20,10 +20,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Backend testleri çalıştırılıyor...'
-                sh '''
-                    docker compose -f docker-compose.yml run --rm --no-deps \
-                        backend sh -c "npm test"
-                '''
+                sh 'docker run --rm stocker-backend npm test'
             }
         }
 
