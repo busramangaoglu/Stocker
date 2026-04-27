@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        COMPOSE_FILE = 'docker-compose.yml'
-        PROJECT_DIR  = '/Users/busramangaoglu/Desktop/stoker'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -18,32 +13,22 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Docker imajları build ediliyor...'
-                sh """
-                    cd ${PROJECT_DIR}
-                    docker compose -f ${COMPOSE_FILE} build --no-cache
-                """
+                sh 'docker compose -f docker-compose.yml build --no-cache'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Backend testleri çalıştırılıyor...'
-                sh """
-                    cd ${PROJECT_DIR}
-                    docker compose -f ${COMPOSE_FILE} run --rm backend \
-                        sh -c "npm test"
-                """
+                sh 'docker compose -f docker-compose.yml run --rm backend sh -c "npm test"'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Container\'lar yeniden başlatılıyor...'
-                sh """
-                    cd ${PROJECT_DIR}
-                    docker compose -f ${COMPOSE_FILE} down --remove-orphans
-                    docker compose -f ${COMPOSE_FILE} up -d
-                """
+                echo "Container'lar yeniden başlatılıyor..."
+                sh 'docker compose -f docker-compose.yml down --remove-orphans'
+                sh 'docker compose -f docker-compose.yml up -d'
             }
         }
 
@@ -65,10 +50,7 @@ pipeline {
         }
         failure {
             echo 'Pipeline hata aldı. Logları inceleyin.'
-            sh """
-                cd ${PROJECT_DIR}
-                docker compose -f ${COMPOSE_FILE} logs --tail=50 || true
-            """
+            sh 'docker compose -f docker-compose.yml logs --tail=50 || true'
         }
     }
 }
