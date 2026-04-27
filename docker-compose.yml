@@ -1,7 +1,6 @@
 services:
   mongo:
     image: mongo:7
-    container_name: stoker-mongo
     ports:
       - "27017:27017"
     command: mongod --replSet rs0 --bind_ip_all
@@ -21,7 +20,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: stoker-backend
     ports:
       - "3000:3000"
     environment:
@@ -44,7 +42,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: stoker-frontend
     ports:
       - "5173:5173"
     depends_on:
