@@ -21,11 +21,8 @@ pipeline {
             steps {
                 echo 'Backend testleri çalıştırılıyor...'
                 sh '''
-                    docker compose -f docker-compose.yml down --remove-orphans 2>/dev/null || true
-                    docker compose -f docker-compose.yml run --rm \
-                        -e SKIP_DB=1 \
+                    docker compose -f docker-compose.yml run --rm --no-deps \
                         backend sh -c "npm test"
-                    docker compose -f docker-compose.yml down --remove-orphans 2>/dev/null || true
                 '''
             }
         }
