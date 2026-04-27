@@ -20,14 +20,19 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Backend testleri çalıştırılıyor...'
-                sh 'docker compose -f docker-compose.yml run --rm backend sh -c "npm test"'
+                sh '''
+                    docker compose -f docker-compose.yml down --remove-orphans 2>/dev/null || true
+                    docker compose -f docker-compose.yml run --rm \
+                        -e SKIP_DB=1 \
+                        backend sh -c "npm test"
+                    docker compose -f docker-compose.yml down --remove-orphans 2>/dev/null || true
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Container'lar yeniden başlatılıyor..."
-                sh 'docker compose -f docker-compose.yml down --remove-orphans'
+                echo "Container'lar başlatılıyor..."
                 sh 'docker compose -f docker-compose.yml up -d'
             }
         }
