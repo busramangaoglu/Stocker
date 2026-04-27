@@ -41,6 +41,13 @@ pipeline {
                 echo 'Backend hazır.'
             }
         }
+
+        stage('Test Logs') {
+            steps {
+                echo 'Servis logları alınıyor...'
+                sh 'docker compose -f docker-compose.yml logs --tail=30 || true'
+            }
+        }
     }
 
     post {
