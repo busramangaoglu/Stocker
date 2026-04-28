@@ -31,7 +31,7 @@ pipeline {
                     docker ps -q --filter publish=27017 | xargs -r docker rm -f || true
                     docker ps -q --filter publish=3000   | xargs -r docker rm -f || true
                     docker ps -q --filter publish=5173   | xargs -r docker rm -f || true
-                    docker compose -f docker-compose.yml up -d
+                    docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
                 '''
             }
         }
@@ -50,7 +50,7 @@ pipeline {
         stage('Test Logs') {
             steps {
                 echo 'Servis logları alınıyor...'
-                sh 'docker compose -f docker-compose.yml logs --tail=30 || true'
+                sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --tail=30 || true'
             }
         }
     }
@@ -61,7 +61,7 @@ pipeline {
         }
         failure {
             echo 'Pipeline hata aldı. Logları inceleyin.'
-            sh 'docker compose -f docker-compose.yml logs --tail=50 || true'
+            sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --tail=50 || true'
         }
     }
 }
