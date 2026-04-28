@@ -27,7 +27,12 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Container'lar başlatılıyor..."
-                sh 'docker compose -f docker-compose.yml up -d'
+                sh '''
+                    docker ps -q --filter publish=27017 | xargs -r docker rm -f || true
+                    docker ps -q --filter publish=3000   | xargs -r docker rm -f || true
+                    docker ps -q --filter publish=5173   | xargs -r docker rm -f || true
+                    docker compose -f docker-compose.yml up -d
+                '''
             }
         }
 
