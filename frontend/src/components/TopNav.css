@@ -1,58 +1,59 @@
+/* TopNav — Windows 2000 title-bar / classic menu style */
+
 .topNav {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: var(--nav-bar-gradient);
-  background-color: var(--nav-bar);
-  border-bottom: 1px solid var(--nav-bar-border);
+  background: linear-gradient(180deg, #1060c8 0%, #0a2f8a 100%);
+  border-bottom: 2px solid #000060;
 }
 
 .topNavInner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 14px 18px;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 8px;
 }
 
+/* Brand / logo area */
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  font-size: 0.95rem;
+  gap: 6px;
+  font-weight: bold;
+  font-size: 12px;
   color: #fff;
   line-height: 1.2;
   text-decoration: none;
+  font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
 }
 
 .brand:hover {
   color: #fff;
+  text-decoration: none;
 }
 
-/* Logoyu daha büyük göster + hafif yakınlaştır (köşe boşlukları kırpılır) */
 .brandLogoWrap {
   flex-shrink: 0;
-  width: 68px;
-  height: 68px;
-  border-radius: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3);
 }
 
 .brandLogo {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transform: scale(1.4);
-  transform-origin: center center;
 }
 
 .brandText {
@@ -63,47 +64,55 @@
 
 .brandText > span {
   display: block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 9px;
+  font-weight: normal;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
-  margin-top: 2px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 1px;
 }
 
+/* Navigation links — Win2k menu bar tab style */
 .navLinks {
   display: flex;
-  gap: 8px;
+  gap: 1px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: stretch;
 }
 
 .navLink {
-  font-weight: 700;
-  font-size: 0.75rem;
-  letter-spacing: 0.02em;
-  padding: 10px 14px;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--nav-link);
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
+  font-weight: normal;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #fff;
+  transition: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .navLink:hover {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-  background: var(--nav-link-hover-bg);
+  text-decoration: none;
 }
 
 .navLink:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
+  outline: 1px dotted #fff;
+  outline-offset: -2px;
 }
 
 .navLink.active {
-  border-color: #fff;
-  background: #fff;
-  color: var(--nav-active-fg);
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+  background: #d4d0c8;
+  color: #000000;
+  border: 1px solid #fff;
+  border-bottom-color: #d4d0c8;
+  font-weight: bold;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px 0 0 #808080;
 }
